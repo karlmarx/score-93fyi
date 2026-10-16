@@ -1,0 +1,322 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Odd or even: where to stand in pickleball doubles</title>
+<meta name="description" content="Your score tells you which side you should be on. See it, test it, settle the argument.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F1F5EE; --surface:#FFFFFF; --ink:#13261C; --muted:#4A5C52; --line:#D5DED6;
+  --court:#2A5DA8; --kitchen:#22508F; --surround:#3E7D5A;
+  --ball:#E2EE3C; --ballEdge:#7F8A10; --them:#FF8FB1;
+  --ok:#1F7A45; --okBg:#E3F3E8; --bad:#B3261E; --badBg:#FBE6E4;
+  color-scheme: light;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0E1C15; --surface:#16281F; --ink:#E9F0EA; --muted:#A9BBB0; --line:#2B4236;
+    --court:#2A5DA8; --kitchen:#22508F; --surround:#2F6247;
+    --ok:#7BD69B; --okBg:#173A26; --bad:#FF9C92; --badBg:#3C1C19;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0E1C15; --surface:#16281F; --ink:#E9F0EA; --muted:#A9BBB0; --line:#2B4236;
+  --surround:#2F6247; --ok:#7BD69B; --okBg:#173A26; --bad:#FF9C92; --badBg:#3C1C19;
+  color-scheme: dark;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 1.0625rem/1.55 Barlow,system-ui,-apple-system,"Segoe UI",sans-serif}
+main{max-width:560px;margin:0 auto;padding:28px 20px 64px}
+h1,h2,.num{font-family:"Barlow Condensed","Arial Narrow",Barlow,sans-serif;font-weight:800;letter-spacing:-.01em;line-height:1.02}
+h1{font-size:clamp(2.6rem,11vw,3.6rem);margin:0 0 14px}
+h2{font-size:2rem;margin:56px 0 12px}
+p{margin:0 0 14px}
+.lede{font-size:1.15rem;color:var(--ink)}
+.lede strong{font-weight:600}
+.muted{color:var(--muted)}
+
+/* Court */
+.court-wrap{margin:26px 0 0;background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:16px}
+.callout{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin:0 0 12px}
+.call{font-family:"Barlow Condensed",sans-serif;font-weight:800;font-size:2.6rem;line-height:1}
+.call-label{font-size:.95rem;color:var(--muted)}
+svg.court{display:block;width:100%;max-width:340px;margin:0 auto;height:auto}
+.p{transition:transform .6s cubic-bezier(.5,0,.2,1)}
+.p circle{stroke-width:2.5}
+.p text{font:800 15px "Barlow Condensed",sans-serif;text-anchor:middle;dominant-baseline:central}
+#ball{transition:transform .45s ease}
+.start{transition:opacity .3s}
+.side-tag{font:600 10px Barlow,sans-serif;fill:#fff;opacity:.85}
+.controls{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+button{font:600 1rem Barlow,sans-serif;border-radius:12px;border:2px solid var(--ink);background:transparent;color:var(--ink);padding:13px 10px;cursor:pointer;min-height:48px}
+button.primary{background:var(--ink);color:var(--bg)}
+button:focus-visible{outline:3px solid var(--court);outline-offset:2px}
+.row2{display:flex;gap:10px;margin-top:10px}
+.row2 button{flex:1;border-width:1px;font-weight:500}
+.status{min-height:3.2em;margin:14px 0 0;font-weight:500}
+.parity{margin:12px 0 0;padding:12px 14px;border-radius:12px;background:var(--bg);font-size:.98rem}
+.parity div+div{margin-top:6px}
+.tag{display:inline-block;font:800 .95rem "Barlow Condensed",sans-serif;padding:1px 8px;border-radius:6px;margin-right:4px}
+.tag.even{background:var(--court);color:#fff}
+.tag.odd{background:var(--ball);color:#13261C}
+
+/* Steps */
+ol.steps{list-style:none;padding:0;margin:0;counter-reset:s}
+ol.steps li{counter-increment:s;position:relative;padding:0 0 18px 52px}
+ol.steps li::before{content:counter(s);position:absolute;left:0;top:-2px;width:36px;height:36px;border-radius:50%;background:var(--ink);color:var(--bg);font:800 1.25rem/36px "Barlow Condensed",sans-serif;text-align:center}
+
+/* Checker */
+.checker{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:18px}
+.q{font-weight:600;margin:0 0 8px}
+.seg{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:18px}
+.seg button{border-width:1px}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+.stepper{display:flex;align-items:center;gap:12px;margin-bottom:18px}
+.stepper button{width:56px;flex:none;font-size:1.5rem;padding:6px}
+.stepper .num{font-size:3rem;min-width:2ch;text-align:center}
+.verdict{border-radius:12px;padding:14px 16px;font-weight:500}
+.verdict.ok{background:var(--okBg);color:var(--ok)}
+.verdict.bad{background:var(--badBg);color:var(--bad)}
+.verdict.wait{background:var(--bg);color:var(--muted)}
+.verdict b{display:block;font:800 1.5rem "Barlow Condensed",sans-serif;margin-bottom:2px}
+
+/* Pocket card */
+.pocket{border:3px solid var(--ink);border-radius:18px;padding:20px;display:grid;grid-template-columns:1fr auto;gap:16px;align-items:center}
+.pocket p{margin:0;font-size:1.1rem}
+.pocket .big{font:800 1.7rem/1.05 "Barlow Condensed",sans-serif;margin-bottom:8px}
+.pocket svg{width:84px;height:auto}
+footer{margin-top:48px;font-size:.9rem;color:var(--muted)}
+
+@media (prefers-reduced-motion: reduce){
+  .p,#ball,.start{transition:none}
+}
+</style>
+</head>
+<body>
+<main>
+  <h1>Your score tells you where to stand.</h1>
+  <p class="lede"><strong>Even score: the player who started on the right is on the right. Odd: they're on the left.</strong></p>
+
+  <h2>Settle it</h2>
+  <div class="checker">
+    <p class="q">Where's the player who started on the right?</p>
+    <div class="seg" role="group" aria-label="Starting player position">
+      <button id="sideR" aria-pressed="false">On the right</button>
+      <button id="sideL" aria-pressed="false">On the left</button>
+    </div>
+    <p class="q">Their team's score?</p>
+    <div class="stepper">
+      <button id="minus" aria-label="Lower score">−</button>
+      <span class="num" id="chkScore" aria-live="polite">0</span>
+      <button id="plus" aria-label="Raise score">+</button>
+    </div>
+    <div class="verdict wait" id="verdict" aria-live="polite">Pick a side.</div>
+  </div>
+
+  <h2>See it happen</h2>
+  <section class="court-wrap" aria-label="Interactive court">
+    <div class="callout">
+      <div>
+        <div class="call-label">Score call</div>
+        <div class="call" id="call" aria-live="polite">0-0-2</div>
+      </div>
+      <div class="call-label" id="who" style="text-align:right">You serve</div>
+    </div>
+
+    <svg class="court" viewBox="0 0 240 480" role="img" aria-label="Top-down pickleball court. Your team A and B on the bottom, the other team C and D on top.">
+      <rect width="240" height="480" rx="14" fill="var(--surround)"/>
+      <rect x="20" y="20" width="200" height="440" fill="var(--court)"/>
+      <rect x="20" y="170" width="200" height="140" fill="var(--kitchen)"/>
+      <g stroke="#fff" stroke-width="2" fill="none">
+        <rect x="20" y="20" width="200" height="440"/>
+        <line x1="20" y1="170" x2="220" y2="170"/>
+        <line x1="20" y1="310" x2="220" y2="310"/>
+        <line x1="120" y1="20" x2="120" y2="170"/>
+        <line x1="120" y1="310" x2="120" y2="460"/>
+      </g>
+      <line x1="10" y1="240" x2="230" y2="240" stroke="#fff" stroke-width="4"/>
+      <line x1="10" y1="240" x2="230" y2="240" stroke="#13261C" stroke-width="1.5" stroke-dasharray="3 3"/>
+      <text class="side-tag" x="205" y="452" text-anchor="end">your right</text>
+      <text class="side-tag" x="35" y="34">their right</text>
+
+      <g class="start" id="startA">
+        <circle cx="170" cy="400" r="22" fill="none" stroke="var(--ball)" stroke-width="2" stroke-dasharray="4 4"/>
+        <text x="170" y="433" text-anchor="middle" class="side-tag" style="fill:var(--ball);opacity:1">A started here</text>
+      </g>
+      <g class="start" id="startC">
+        <circle cx="70" cy="80" r="22" fill="none" stroke="var(--them)" stroke-width="2" stroke-dasharray="4 4"/>
+        <text x="70" y="52" text-anchor="middle" class="side-tag" style="fill:var(--them);opacity:1">C started here</text>
+      </g>
+
+      <g class="p" id="pA"><circle r="16" fill="var(--ball)" stroke="#13261C"/><text fill="#13261C">A</text></g>
+      <g class="p" id="pB"><circle r="16" fill="#fff" stroke="#13261C"/><text fill="#13261C">B</text></g>
+      <g class="p" id="pC"><circle r="16" fill="var(--them)" stroke="#13261C"/><text fill="#13261C">C</text></g>
+      <g class="p" id="pD"><circle r="16" fill="#fff" stroke="#13261C"/><text fill="#13261C">D</text></g>
+      <circle id="ball" r="6" fill="var(--ball)" stroke="var(--ballEdge)" stroke-width="1.5"/>
+    </svg>
+
+    <div class="controls">
+      <button class="primary" id="winUs">You win the rally</button>
+      <button id="winThem">They win the rally</button>
+    </div>
+    <div class="row2">
+      <button id="auto" aria-pressed="false">Watch a game</button>
+      <button id="reset">Start over</button>
+    </div>
+    <p class="status" id="status" aria-live="polite">Tap who wins. Watch A.</p>
+    <div class="parity" id="parity"></div>
+  </section>
+
+  <h2>Why</h2>
+  <p>You only swap when your team wins a point on its own serve. One point, one swap. Odd points, off your starting side.</p>
+  <p class="muted">The receiving team never moves.</p>
+
+  <h2>The pocket version</h2>
+  <div class="pocket">
+    <div>
+      <p class="big">Even: starter on the right.<br>Odd: starter on the left.</p>
+      <p class="muted">Each team, its own score.</p>
+    </div>
+    <svg viewBox="0 0 84 120" aria-hidden="true">
+      <rect x="2" y="2" width="80" height="116" rx="6" fill="var(--court)"/>
+      <line x1="42" y1="2" x2="42" y2="118" stroke="#fff" stroke-width="2"/>
+      <circle cx="62" cy="36" r="12" fill="var(--ball)" stroke="#13261C" stroke-width="2"/>
+      <text x="62" y="70" text-anchor="middle" fill="#fff" font-family="Barlow Condensed,sans-serif" font-weight="800" font-size="15">EVEN</text>
+      <circle cx="22" cy="92" r="12" fill="var(--ball)" stroke="#13261C" stroke-width="2"/>
+      <text x="22" y="62" text-anchor="middle" fill="#fff" font-family="Barlow Condensed,sans-serif" font-weight="800" font-size="15">ODD</text>
+    </svg>
+  </div>
+
+</main>
+
+<script>
+(function(){
+  var POS = {
+    us:   { right:[170,400], left:[70,400] },
+    them: { right:[70,80],   left:[170,80] }
+  };
+  var partner = {A:'B',B:'A',C:'D',D:'C'};
+  var teamOf = {A:'us',B:'us',C:'them',D:'them'};
+  var st;
+
+  function fresh(){
+    return { us:0, them:0, serving:'us', num:2, server:'A', right:{us:'A', them:'C'}, done:false };
+  }
+
+  function place(id, xy){
+    document.getElementById('p'+id).style.transform = 'translate('+xy[0]+'px,'+xy[1]+'px)';
+  }
+
+  function sideOf(p){
+    var t = teamOf[p];
+    return st.right[t] === p ? 'right' : 'left';
+  }
+
+  function render(msg){
+    ['A','B','C','D'].forEach(function(p){ place(p, POS[teamOf[p]][sideOf(p)]); });
+    var sp = POS[teamOf[st.server]][sideOf(st.server)];
+    var bx = sp[0] + 24, by = sp[1] + (teamOf[st.server]==='us' ? -10 : 10);
+    document.getElementById('ball').style.transform = 'translate('+bx+'px,'+by+'px)';
+
+    var s = st.serving, r = s==='us' ? 'them' : 'us';
+    document.getElementById('call').textContent = st[s]+'-'+st[r]+'-'+st.num;
+    document.getElementById('who').textContent = (s==='us' ? 'You serve' : 'They serve') + ', server ' + st.num;
+
+    document.getElementById('startA').style.opacity = sideOf('A')==='left' ? 1 : 0;
+    document.getElementById('startC').style.opacity = sideOf('C')==='left' ? 1 : 0;
+
+    document.getElementById('parity').innerHTML = line('You', st.us, 'A') + line('Them', st.them, 'C');
+    if(msg) document.getElementById('status').textContent = msg;
+  }
+
+  function line(label, score, starter){
+    var odd = score % 2 === 1;
+    var where = odd ? 'on the left' : 'on the right';
+    return '<div><span class="tag '+(odd?'odd':'even')+'">'+score+' '+(odd?'odd':'even')+'</span> '+label+': '+starter+' is '+where+'</div>';
+  }
+
+  function rally(winner){
+    if(st.done){ st = fresh(); render('New game. You serve first, 0-0-2.'); return; }
+    var s = st.serving, r = s==='us' ? 'them' : 'us';
+    var msg;
+    if(winner === s){
+      st[s]++;
+      st.right[s] = partner[st.right[s]];
+      msg = s==='us'
+        ? 'Your point. A and B swap.'
+        : 'Their point. C and D swap.';
+    } else if(st.num === 1){
+      st.num = 2;
+      st.server = partner[st.server];
+      msg = 'Server 1 lost. Partner serves. Nobody moves.';
+    } else {
+      st.serving = r; st.num = 1; st.server = st.right[r];
+      msg = 'Side out. Nobody moves.';
+    }
+    var a = st.us, b = st.them;
+    if((a>=11 || b>=11) && Math.abs(a-b)>=2){
+      st.done = true;
+      msg += ' Game over. Tap for a new game.';
+    }
+    render(msg);
+  }
+
+  st = fresh();
+  render();
+  // enable animation only after first placement
+  requestAnimationFrame(function(){ document.body.classList.add('ready'); });
+
+  document.getElementById('winUs').onclick = function(){ stopAuto(); rally('us'); };
+  document.getElementById('winThem').onclick = function(){ stopAuto(); rally('them'); };
+  document.getElementById('reset').onclick = function(){ stopAuto(); st = fresh(); render('Fresh game. You serve first, 0-0-2.'); };
+
+  var timer = null, autoBtn = document.getElementById('auto');
+  function stopAuto(){ if(timer){ clearInterval(timer); timer=null; autoBtn.textContent='Watch a game'; autoBtn.setAttribute('aria-pressed','false'); } }
+  autoBtn.onclick = function(){
+    if(timer){ stopAuto(); return; }
+    autoBtn.textContent = 'Pause'; autoBtn.setAttribute('aria-pressed','true');
+    if(st.done){ st = fresh(); render(); }
+    timer = setInterval(function(){
+      rally(Math.random() < .55 ? 'us' : 'them');
+      if(st.done) stopAuto();
+    }, 1700);
+  };
+
+  // Checker
+  var side = null, score = 0;
+  var sideR = document.getElementById('sideR'), sideL = document.getElementById('sideL');
+  function check(){
+    sideR.setAttribute('aria-pressed', side==='right');
+    sideL.setAttribute('aria-pressed', side==='left');
+    document.getElementById('chkScore').textContent = score;
+    var v = document.getElementById('verdict');
+    if(!side){ v.className='verdict wait'; v.textContent='Pick a side.'; return; }
+    var odd = score % 2 === 1;
+    var good = (side==='right' && !odd) || (side==='left' && odd);
+    if(good){
+      v.className = 'verdict ok';
+      v.innerHTML = '<b>Checks out</b>';
+    } else {
+      var need = side==='right' ? 'even' : 'odd';
+      var opts = [score-1, score+1].filter(function(n){ return n>=0; }).join(' or ');
+      v.className = 'verdict bad';
+      v.innerHTML = '<b>Wrong score</b>Has to be '+need+'. Try '+opts+'.';
+    }
+  }
+  sideR.onclick = function(){ side='right'; check(); };
+  sideL.onclick = function(){ side='left'; check(); };
+  document.getElementById('minus').onclick = function(){ if(score>0) score--; check(); };
+  document.getElementById('plus').onclick = function(){ if(score<30) score++; check(); };
+})();
+</script>
+</body>
+</html>
