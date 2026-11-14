@@ -1,0 +1,68 @@
+/* Shared by / and /quiz/: colours, type, buttons, the card and the court. */
+:root{
+  --bg:#F1F5EE; --surface:#FFFFFF; --ink:#13261C; --muted:#4A5C52; --line:#D5DED6;
+  --court:#2A5DA8; --kitchen:#22508F; --surround:#3E7D5A;
+  --ball:#E2EE3C; --ballEdge:#7F8A10; --them:#FF8FB1;
+  --ok:#1F7A45; --okBg:#E3F3E8; --bad:#B3261E; --badBg:#FBE6E4;
+  color-scheme: light;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0E1C15; --surface:#16281F; --ink:#E9F0EA; --muted:#A9BBB0; --line:#2B4236;
+    --surround:#2F6247; --ok:#7BD69B; --okBg:#173A26; --bad:#FF9C92; --badBg:#3C1C19;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0E1C15; --surface:#16281F; --ink:#E9F0EA; --muted:#A9BBB0; --line:#2B4236;
+  --surround:#2F6247; --ok:#7BD69B; --okBg:#173A26; --bad:#FF9C92; --badBg:#3C1C19;
+  color-scheme: dark;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 1.0625rem/1.55 Barlow,system-ui,-apple-system,"Segoe UI",sans-serif}
+h1,h2,.num{font-family:"Barlow Condensed","Arial Narrow",Barlow,sans-serif;font-weight:800;letter-spacing:-.01em;line-height:1.02}
+p{margin:0 0 14px}
+.muted{color:var(--muted)}
+
+button,.btn{font:600 1rem Barlow,sans-serif;border-radius:12px;border:2px solid var(--ink);background:transparent;color:var(--ink);padding:13px 10px;cursor:pointer;min-height:48px}
+button.primary{background:var(--ink);color:var(--bg)}
+button:focus-visible,a:focus-visible{outline:3px solid var(--court);outline-offset:2px}
+.btn{display:flex;align-items:center;justify-content:center;text-align:center;text-decoration:none}
+
+.topbar{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px 12px}
+.navlink{display:inline-flex;align-items:center;min-height:36px;color:var(--ink);font-weight:600;text-decoration:none}
+.langs{display:flex;gap:6px;justify-content:flex-end;margin-left:auto}
+.langs button{min-height:36px;padding:4px 10px;border-width:1px;font-size:.9rem;font-weight:600;border-radius:8px}
+.langs button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+
+.card{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:16px}
+.q{font-weight:600;margin:0 0 8px}
+.tag{display:inline-block;font:800 .95rem "Barlow Condensed",sans-serif;padding:1px 8px;border-radius:6px;margin-right:4px}
+.tag.even{background:var(--court);color:#fff}
+.tag.odd{background:var(--ball);color:#13261C}
+
+/* The court fills whatever height its card has left, so the card can be sized to the screen. */
+.court-box{position:relative;flex:1 1 0;min-height:160px}
+.court-box svg{position:absolute;top:0;left:0;width:100%;height:100%;display:block}
+.p{transition:transform .6s cubic-bezier(.5,0,.2,1),opacity .3s}
+.p circle{stroke-width:2.5}
+.p text{font:800 15px "Barlow Condensed",sans-serif;text-anchor:middle;dominant-baseline:central}
+.ball{transition:transform .45s ease,opacity .3s}
+.start,.ghost,.ring,.aim{transition:opacity .3s}
+.ghost text{font:800 16px "Barlow Condensed",sans-serif;fill:#fff;text-anchor:middle;dominant-baseline:central}
+.side-tag{font:600 10px Barlow,sans-serif;fill:#fff;opacity:.85}
+
+details.more{background:var(--surface);border:1px solid var(--line);border-radius:14px;margin:12px 0}
+details.more summary{cursor:pointer;list-style:none;padding:14px 44px 14px 16px;font-weight:600;position:relative;min-height:48px}
+details.more summary::-webkit-details-marker{display:none}
+details.more summary::after{content:"+";position:absolute;right:16px;top:50%;transform:translateY(-50%);font:800 1.6rem "Barlow Condensed",sans-serif}
+details.more[open] summary::after{content:"−"}
+details.more .body{padding:0 16px 14px}
+details.more ol{padding-left:1.2em;margin:0 0 14px}
+details.more li{margin-bottom:8px}
+
+@media (prefers-reduced-motion: reduce){ .p,.ball,.start,.ghost,.ring,.aim{transition:none} }

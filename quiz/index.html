@@ -1,0 +1,317 @@
+<!doctype html>
+<html lang="en" data-title="qTitle">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Pickleball doubles scoring quiz</title>
+<meta name="description" content="Practise pickleball doubles scoring: who scores, who serves next, and what the call is.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/shared.css">
+<style>
+.quizmain{max-width:560px;margin:0 auto;padding:0 16px 48px}
+/* The quiz is exactly one screen: question, court and answers are always visible together. */
+.screen{display:flex;flex-direction:column;gap:8px;padding:8px 0;min-height:500px;
+  height:100vh;
+  height:min(calc(100svh - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px)),780px)}
+.quiz{flex:1 1 0;min-height:0;display:flex;flex-direction:column;gap:8px;padding:12px;scroll-margin:8px}
+.qtop{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+.qtop h1{font-size:1.5rem;margin:0}
+.tally{font-size:.85rem;line-height:1.2;color:var(--muted);text-align:right}
+.sit{display:flex;align-items:center;gap:10px;min-height:38px;font-size:.9rem;line-height:1.25;color:var(--muted)}
+.chip{flex:none;font:800 1.7rem/1 "Barlow Condensed",sans-serif;color:var(--ink);background:var(--bg);border-radius:8px;padding:5px 10px}
+.prompt{margin:0;min-height:2.5em;font-size:1.05rem;line-height:1.25;font-weight:600}
+
+/* Answers and feedback share one fixed slot, so the court never jumps. */
+.bottom{display:grid;min-height:104px}
+.answers{display:grid;grid-template-columns:1fr 1fr;grid-auto-rows:1fr;gap:8px}
+.answers[hidden],.fb[hidden]{display:none}
+.answers button{display:flex;align-items:center;justify-content:center;border-width:1px;padding:6px 8px;font-size:.95rem;line-height:1.15}
+.answers.big button{font:800 1.5rem/1.05 "Barlow Condensed",sans-serif}
+.answers.locked button{cursor:default}
+.answers.locked button:not(.good):not(.bad){opacity:.4}
+.answers button.good{background:var(--okBg);border-color:var(--ok);color:var(--ok)}
+.answers button.bad{background:var(--badBg);border-color:var(--bad);color:var(--bad)}
+.tok{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:50%;border:2.5px solid #13261C;color:#13261C;font:800 1.1rem/1 "Barlow Condensed",sans-serif}
+.fb{display:flex;align-items:stretch;gap:10px}
+.fb p{flex:1;align-self:center;margin:0;font-size:.875rem;line-height:1.3}
+.fb b.ok{color:var(--ok)}
+.fb b.bad{color:var(--bad)}
+.fb button{flex:none;min-width:84px}
+
+.below{padding-top:16px}
+.topics{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px}
+.topics button{min-height:40px;padding:6px 14px;border-width:1px;font-size:.95rem}
+.topics button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+
+/* Short and wide (a phone on its side): court on the left, question and answers beside it. */
+@media (max-height:520px) and (min-width:600px){
+  .screen{height:auto;min-height:0}
+  .quiz{flex:none;display:grid;grid-template-columns:minmax(180px,34%) 1fr;column-gap:16px;align-content:start}
+  .quiz .court-box{grid-column:1;grid-row:1 / span 4;min-height:0}
+  .quiz > :not(.court-box){grid-column:2}
+}
+</style>
+</head>
+<body>
+<main class="quizmain">
+  <div class="screen">
+    <div class="topbar">
+      <a class="navlink" href="/" data-keep-lang data-i="qBack"></a>
+      <nav class="langs" aria-label="Language">
+        <button data-lang="en" lang="en">EN</button>
+        <button data-lang="de" lang="de">DE</button>
+        <button data-lang="fr" lang="fr">FR</button>
+        <button data-lang="it" lang="it">IT</button>
+        <button data-lang="rm" lang="rm">RM</button>
+      </nav>
+    </div>
+    <section class="card quiz" id="quiz">
+      <div class="qtop">
+        <h1 data-i="qH1"></h1>
+        <span class="tally" id="tally"></span>
+      </div>
+      <div class="sit" id="sit"></div>
+      <p class="prompt" id="prompt" aria-live="polite"></p>
+      <div class="court-box" id="court"></div>
+      <div class="bottom">
+        <div class="answers" id="answers"></div>
+        <div class="fb" id="fb" hidden>
+          <p id="fbText" aria-live="polite"></p>
+          <button class="primary" id="next" data-i="next"></button>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div class="below">
+    <p class="q" data-i="topic"></p>
+    <div class="topics" id="topics" role="group" data-ia="topic">
+      <button data-topic="all" data-i="tAll"></button>
+      <button data-topic="points" data-i="tPoints"></button>
+      <button data-topic="call" data-i="tCall"></button>
+      <button data-topic="serve" data-i="tServe"></button>
+      <button data-topic="sides" data-i="tSides"></button>
+    </div>
+    <details class="more" open>
+      <summary data-i="rulesT"></summary>
+      <div class="body" data-ih="rulesB"></div>
+    </details>
+  </div>
+</main>
+
+<script src="/shared.js"></script>
+<script>
+(function(){
+"use strict";
+var PB = window.PB, t = PB.t;
+function el(id){ return document.getElementById(id); }
+var card = el("quiz"), ansEl = el("answers"), fbEl = el("fb"), nextBtn = el("next");
+var court = PB.mountCourt(el("court"));
+
+/* Question types per topic. A type listed twice comes up twice as often. */
+var BAG = {
+  points:["happens","happens","happens","over"],
+  call:["call","nextcall"],
+  serve:["who","who","recv"],
+  sides:["where","where","imp"]
+};
+BAG.all = BAG.points.concat(BAG.call, BAG.call, BAG.serve, BAG.sides);
+var topic = "all", q = null, phase = "ask", picked = -1, lastType = "", timer = null;
+var tally = { n:0, r:0, streak:0 };
+
+function rnd(n){ return Math.floor(Math.random()*n); }
+function pick(a){ return a[rnd(a.length)]; }
+function shuffle(a){ for(var i=a.length-1;i>0;i--){ var j = rnd(i+1), x = a[i]; a[i] = a[j]; a[j] = x; } return a; }
+function uniq(list, not){ var out = []; list.forEach(function(x){ if(x !== not && out.indexOf(x) < 0) out.push(x); }); return out; }
+
+/* A position that really can happen: play a random number of rallies from 0-0-2. */
+function randState(){
+  var s = PB.fresh(), n = rnd(28);
+  for(var i=0;i<n;i++){
+    var r = PB.step(s, Math.random() < .5 ? "us" : "them");
+    if(r.st.us > 9 || r.st.them > 9) break;
+    s = r.st;
+  }
+  return s;
+}
+/* Players placed by score alone (even: starter on the right). Used when nobody is serving in the picture. */
+function posState(us, them){
+  var s = PB.fresh();
+  s.us = us; s.them = them; s.first = false;
+  s.right.us = us % 2 ? "B" : "A";
+  s.right.them = them % 2 ? "D" : "C";
+  return s;
+}
+/* A position plus one rally. One time in seven it is the very first serve, where the one-server rule bites. */
+function scenario(){
+  var s = Math.random() < .15 ? PB.fresh() : randState();
+  var w = Math.random() < .5 ? "us" : "them";
+  var r = PB.step(s, w);
+  return { s:s, w:w, st:r.st, ev:r.ev };
+}
+
+function chip(x){ return '<b class="chip">'+x+'</b>'; }
+function who(s){ return t(s.serving==="us" ? "youServe" : "theyServe") + ", " + t("server") + " " + s.num; }
+function sitCall(s){ return chip(PB.callOf(s)) + "<span>" + who(s) + "</span>"; }
+var FILL = { A:"var(--ball)", B:"#fff", C:"var(--them)", D:"#fff" };
+function tok(p){ return '<span class="tok" style="background:'+FILL[p]+'">'+p+'</span>'; }
+function toks(){ return ["A","B","C","D"].map(tok); }
+function why(sc){
+  if(sc.ev === "point") return t("xPoint");
+  if(sc.ev === "second") return t("xSecond");
+  return t(sc.s.first ? "xFirst" : "xOut");
+}
+
+/* Each generator returns: state (+draw options) to show, optional after (what the court shows once answered),
+   ok (index of the right option) and view(), which builds the texts in the current language. */
+var G = {
+  happens:function(){
+    var sc = scenario(), mate = PB.partner[sc.s.server];
+    return { state:sc.s, after:{state:sc.st},
+      ok: sc.ev==="point" ? (sc.w==="us" ? 0 : 1) : sc.ev==="second" ? 2 : 3,
+      view:function(){ return { sit:sitCall(sc.s), sitAfter:sitCall(sc.st), prompt:t(sc.w==="us" ? "pWinUs" : "pWinThem"),
+        opts:[t("oPtUs"), t("oPtThem"), t("oSecond",{p:mate}), t("oOut")], why:why(sc) }; } };
+  },
+  over:function(){
+    var c = pick([[11,9],[11,10],[12,10],[10,8],[12,11],[11,7],[13,11],[10,10],[9,7],[14,12],[11,5],[10,9]]);
+    var flip = Math.random() < .5, us = flip ? c[1] : c[0], them = flip ? c[0] : c[1];
+    var over = c[0] >= 11 && c[0] - c[1] >= 2;
+    return { state:posState(us, them), draw:{ball:false}, ok: over ? 0 : 1,
+      view:function(){ return { sit:chip(t("sitScores",{us:us,them:them})), prompt:t("pOver"), opts:[t("yes"), t("no")],
+        why:t(over ? "xOverYes" : c[0] < 11 ? "xOverNo11" : "xOverNo2") }; } };
+  },
+  call:function(){
+    var start = Math.random() < .2, s = PB.fresh();
+    if(!start){ do { s = randState(); } while(s.us === s.them); }
+    var S = s[s.serving], R = s[PB.other(s.serving)], n = s.num, m = 3 - n, right = PB.callOf(s);
+    /* Receivers' score first is the classic slip, so it is always on offer. */
+    var wrong = start ? ["0-0-1","0-0","2-0-0"]
+      : uniq([R+"-"+S+"-"+n].concat(shuffle([S+"-"+R+"-"+m, R+"-"+S+"-"+m, n+"-"+S+"-"+R, S+"-"+R])), right).slice(0,3);
+    var opts = shuffle(wrong.concat([right]));
+    return { state:s, ok:opts.indexOf(right),
+      view:function(){ return {
+        sit:chip("?") + "<span>" + t("sitScores",{us:s.us,them:s.them}) + "<br>" + (start ? t("sitFirst") : who(s)) + "</span>",
+        sitAfter:sitCall(s), prompt:t("pCall"), opts:opts, why:t(start ? "xStartCall" : "xCall",{call:right}) }; } };
+  },
+  nextcall:function(){
+    var sc = scenario(), s = sc.s, S = s[s.serving], R = s[PB.other(s.serving)], n = s.num, right = PB.callOf(sc.st);
+    /* The three things that can happen, plus two where the receivers wrongly get a point. */
+    var wrong = uniq(shuffle([(S+1)+"-"+R+"-"+n, S+"-"+R+"-"+(3-n), R+"-"+S+"-1", S+"-"+(R+1)+"-"+n, (R+1)+"-"+S+"-1"]), right).slice(0,3);
+    var opts = shuffle(wrong.concat([right]));
+    return { state:s, after:{state:sc.st}, ok:opts.indexOf(right),
+      view:function(){ return { sit:sitCall(s), sitAfter:sitCall(sc.st), prompt:t(sc.w==="us" ? "pNextUs" : "pNextThem"),
+        opts:opts, why:why(sc) + " " + t("xNow",{call:right}) }; } };
+  },
+  who:function(){
+    var sc = scenario(), p = sc.st.server;
+    return { state:sc.s, after:{state:sc.st, draw:{mark:p}}, ok:"ABCD".indexOf(p),
+      view:function(){ return { sit:sitCall(sc.s), sitAfter:sitCall(sc.st), prompt:t(sc.w==="us" ? "pWhoUs" : "pWhoThem"), opts:toks(),
+        why: sc.ev==="point" ? t("xSame",{p:p}) : sc.ev==="second" ? t("xPartner",{p:p})
+          : t(sc.s.first ? "xFirst" : "xOutHead") + " " + t("xRight",{p:p}) }; } };
+  },
+  recv:function(){
+    var s = randState(), srv = s.server, rt = PB.other(s.serving);
+    var rc = PB.sideOf(s, srv)==="right" ? s.right[rt] : PB.partner[s.right[rt]];
+    return { state:s, after:{state:s, draw:{mark:rc, aim:[srv, rc]}}, ok:"ABCD".indexOf(rc),
+      view:function(){ return { sit:sitCall(s), prompt:t("pRecv",{p:srv}), opts:toks(), why:t("xDiag",{p:rc}) }; } };
+  },
+  where:function(){
+    var mine = Math.random() < .5, team = mine ? "us" : "them", p = mine ? "A" : "C", n = rnd(11);
+    var s = posState(mine ? n : 0, mine ? 0 : n);
+    /* Buttons sit under the spot they name: the other team faces us, so their right is on our left. */
+    var sides = mine ? ["left","right"] : ["right","left"];
+    return { state:s, draw:{hide:mine ? "AB" : "CD", ghost:team, ball:false}, after:{state:s, draw:{ball:false, mark:p}}, ok:sides.indexOf(n % 2 ? "left" : "right"),
+      view:function(){ return { sit:"<span>" + t(mine ? "you" : "them") + "</span>" + chip(n), prompt:t(mine ? "pWhereUs" : "pWhereThem",{n:n,p:p}),
+        opts:sides.map(function(x){ return t(x); }), why:t(n % 2 ? "xOdd" : "xEven",{n:n,p:p}) }; } };
+  },
+  imp:function(){
+    var mine = Math.random() < .5, team = mine ? "us" : "them", p = mine ? "A" : "C", odd = Math.random() < .5;
+    var ODD = [1,3,5,7,9], EVEN = [0,2,4,6,8,10];
+    var fits = shuffle((odd ? ODD : EVEN).slice()).slice(0,3), wrong = pick(odd ? EVEN : ODD);
+    var nums = fits.concat([wrong]).sort(function(a,b){ return a-b; });
+    var s = posState(mine ? fits[0] : 0, mine ? 0 : fits[0]);
+    return { state:s, draw:{ball:false, start:team}, after:{state:s, draw:{ball:false, start:team, mark:p}}, ok:nums.indexOf(wrong),
+      view:function(){ return { sit:"<span>" + t(mine ? "you" : "them") + "</span>" + chip("?"), prompt:t(mine ? "pImpUs" : "pImpThem",{p:p}),
+        opts:nums.map(String), why:t(odd ? "xImpOdd" : "xImpEven",{p:p,n:wrong}) }; } };
+  }
+};
+
+function show(){
+  var v = q.view(), done = phase !== "ask", ok = picked === q.ok;
+  el("sit").innerHTML = done && v.sitAfter ? v.sitAfter : v.sit;
+  el("prompt").textContent = v.prompt;
+  if(done && q.after) court.draw(q.after.state, q.after.draw); else court.draw(q.state, q.draw);
+  ansEl.className = "answers" + (q.type === "happens" ? "" : " big") + (done ? " locked" : "");
+  ansEl.innerHTML = "";
+  v.opts.forEach(function(html, i){
+    var b = document.createElement("button");
+    b.type = "button";
+    b.innerHTML = html;
+    if(done){
+      b.setAttribute("aria-disabled", "true");
+      if(i === q.ok) b.className = "good"; else if(i === picked) b.className = "bad";
+    }
+    b.onclick = function(){ answer(i); };
+    ansEl.appendChild(b);
+  });
+  ansEl.hidden = phase === "done";
+  fbEl.hidden = phase !== "done";
+  el("fbText").innerHTML = phase === "done" ? '<b class="'+(ok ? "ok" : "bad")+'">'+(ok ? "✓ " : "✗ ")+t(ok ? "qRight" : "qWrong")+"</b> "+v.why : "";
+  el("tally").textContent = tally.n ? t("qScore",{r:tally.r,n:tally.n}) + (tally.streak > 1 ? " · " + t("qStreak",{n:tally.streak}) : "") : "";
+}
+function fit(){
+  var calm = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+  try{ card.scrollIntoView({block:"nearest", behavior:calm ? "auto" : "smooth"}); }catch(e){}
+}
+function newQ(){
+  var bag = BAG[topic], type = pick(bag);
+  if(type === lastType) type = pick(bag);
+  lastType = type;
+  q = G[type]();
+  q.type = type;
+  phase = "ask"; picked = -1;
+  show();
+}
+/* The tapped button shows right or wrong for a moment, then the explanation takes its place. */
+function answer(i){
+  if(phase !== "ask") return;
+  picked = i; phase = "flash";
+  tally.n++;
+  if(i === q.ok){ tally.r++; tally.streak++; } else { tally.streak = 0; }
+  show(); fit();
+  timer = setTimeout(function(){
+    phase = "done"; show();
+    try{ nextBtn.focus({preventScroll:true}); }catch(e){}
+  }, 700);
+}
+nextBtn.onclick = function(){ if(phase === "done"){ newQ(); fit(); } };
+document.addEventListener("keydown", function(e){
+  if(e.metaKey || e.ctrlKey || e.altKey) return;
+  var n = "1234".indexOf(e.key);
+  if(phase === "ask" && n >= 0 && n < ansEl.children.length) answer(n);
+});
+
+var chips = Array.prototype.slice.call(el("topics").children);
+function setTopic(x, user){
+  topic = BAG[x] ? x : "all";
+  chips.forEach(function(b){ b.setAttribute("aria-pressed", b.getAttribute("data-topic") === topic); });
+  try{
+    var u = new URL(location.href);
+    if(topic === "all") u.searchParams.delete("topic"); else u.searchParams.set("topic", topic);
+    history.replaceState(null, "", u);
+  }catch(e){}
+  if(user){ clearTimeout(timer); lastType = ""; newQ(); fit(); }
+}
+chips.forEach(function(b){ b.onclick = function(){ setTopic(b.getAttribute("data-topic"), true); }; });
+
+var first = "all";
+try{ first = new URLSearchParams(location.search).get("topic") || "all"; }catch(e){}
+setTopic(first, false);
+newQ();
+PB.initLang(show);
+})();
+</script>
+</body>
+</html>
