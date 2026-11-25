@@ -296,7 +296,7 @@ document.addEventListener("keydown", function(e){
 
 var chips = Array.prototype.slice.call(el("topics").children);
 function setTopic(x, user){
-  topic = BAG[x] ? x : "all";
+  topic = Object.prototype.hasOwnProperty.call(BAG, x) ? x : "all";
   chips.forEach(function(b){ b.setAttribute("aria-pressed", b.getAttribute("data-topic") === topic); });
   try{
     var u = new URL(location.href);

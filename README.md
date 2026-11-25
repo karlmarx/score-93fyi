@@ -1,6 +1,6 @@
 # score-93fyi
 
-Pickleball doubles scoring, live at https://score.93.fyi. Static files, no build step. Vercel deploys `main`.
+Odd or even: where to stand in pickleball doubles, plus a scoring quiz. Live at https://score.93.fyi. Static files, no build step. Vercel deploys `main`.
 
 - `/` (`index.html`): the odd-or-even explainer, the score checker and the rally simulator.
 - `/quiz/` (`quiz/index.html`): the scoring quiz. `?topic=points|call|serve|sides` opens on one topic.
